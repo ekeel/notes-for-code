@@ -1,0 +1,82 @@
+{
+	"name": "notes-for-code",
+	"displayName": "notes-for-code",
+	"description": "A note plugin for Code that used git as a backend.",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.64.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:notes-for-code.git.clone",
+		"onCommand:notes-for-code.git.pull",
+		"onCommand:notes-for-code.git.push",
+		"onCommand:notes-for-code.open"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "notes-for-code.git.clone",
+				"title": "Notes: Clone"
+			},
+			{
+				"command": "notes-for-code.git.pull",
+				"title": "Notes: Pull"
+			},
+			{
+				"command": "notes-for-code.git.push",
+				"title": "Notes: Push"
+			},
+			{
+				"command": "notes-for-code.open",
+				"title": "Notes: Open"
+			}
+		],
+		"configuration":[
+			{
+				"title": "Notes for Code",
+				"properties": {
+					"notes-for-code.repo": {
+						"type": "string",
+						"description": "The URL to the git notes repository."
+					},
+					"notes-for-code.directory": {
+						"type": "string",
+						"description": "The local directory to store the notes repo."
+					},
+					"notes-for-code.key": {
+						"type": "string",
+						"description": "The path to the SSH key for connecting to the notes repo."
+					}
+				}
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.64.0",
+		"@types/glob": "^7.2.0",
+		"@types/mocha": "^9.0.0",
+		"@types/node": "14.x",
+		"@typescript-eslint/eslint-plugin": "^5.9.1",
+		"@typescript-eslint/parser": "^5.9.1",
+		"eslint": "^8.6.0",
+		"glob": "^7.2.0",
+		"mocha": "^9.1.3",
+		"typescript": "^4.5.4",
+		"@vscode/test-electron": "^2.0.3"
+	},
+	"dependencies": {
+		"simple-git": "^3.1.1"
+	}
+}
