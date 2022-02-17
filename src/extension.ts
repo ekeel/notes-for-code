@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import simpleGit, * as git from 'simple-git';
 import * as fs from 'fs';
 import * as path from 'path';
-import { SimpleGit } from 'simple-git';
+import { CommitResult, GitError, PullResult, PushResult, SimpleGit } from 'simple-git';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "notes-for-code" is now active!');
@@ -18,6 +18,8 @@ export function activate(context: vscode.ExtensionContext) {
 			return Buffer.concat([...result.stdOut, ...result.stdErr]);
 		}
 	});
+
+	sgit.cwd(String(config.get('directory')));
 
 	let clone = vscode.commands.registerCommand('notes-for-code.git.clone', () => {
 		if (!String(config.get('repo'))) {
@@ -36,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		try { 
-			sgit.clone(String(config.get('repo')), String(config.get('directory')));
+			sgit.clone(String(config.get('repo')), String(config.get('directory')), undefined, onClone);
 			sgit.cwd(String(config.get('directory')));
 			vscode.window.showInformationMessage(`The notes repo has been cloned to ${String(config.get('directory'))}.`);
 		}
@@ -63,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		try {
-			sgit.pull();
+			sgit.pull(onPull);
 			vscode.window.showInformationMessage(`The notes repo has been updated.`);
 		} catch (error) {
 			vscode.window.showErrorMessage(String(error));
@@ -87,11 +89,19 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		vscode.window.showInformationMessage(`${status(sgit)}`);
-
 		try {
-			sgit.add('./*').push();
-			vscode.window.showInformationMessage(`The notes repo has been pushed.`);
+			sgit.status((err, status) => {
+				if (err) { return; }
+
+				if (status.files.length > 0) {
+					sgit.add('*', onAdd)
+							.commit('notes-for-code commit', onCommit)
+							.push(onPush);
+	
+					vscode.window.showInformationMessage(`The notes repo has been pushed.`);
+				}
+			});
+
 		} catch (error) {
 			vscode.window.showErrorMessage(String(error));
 			console.error(error);
@@ -119,15 +129,52 @@ function repoHasBeenCloned(dir: string): boolean {
 	return exists;
 }
 
-async function status (sgit: SimpleGit) {
-	let statusSummary = null;
-	try {
-		statusSummary = await sgit.status();
-	}
-	catch (error) {
-		vscode.window.showErrorMessage(String(error));
-		console.error(error);
+function onClone(err: GitError | null, result: string) {
+	if (err) {
+		vscode.window.showErrorMessage(String(err));
+		console.error(err);
+		return;
 	}
 
-	return statusSummary;
+	console.log(result);
+}
+
+function onPull(err: GitError | null, result: PullResult) {
+	if (err) {
+		vscode.window.showErrorMessage(String(err));
+		console.error(err);
+		return;
+	}
+
+	console.log(result);
+}
+
+function onAdd(err: GitError | null, result: string) {
+	if (err) {
+		vscode.window.showErrorMessage(String(err));
+		console.error(err);
+		return;
+	}
+
+	console.log(result);
+}
+
+function onCommit(err: GitError | null, result: CommitResult) {
+	if (err) {
+		vscode.window.showErrorMessage(String(err));
+		console.error(err);
+		return;
+	}
+
+	console.log(result);
+}
+
+function onPush(err: GitError | null, result: PushResult) {
+	if (err) {
+		vscode.window.showErrorMessage(String(err));
+		console.error(err);
+		return;
+	}
+
+	console.log(result);
 }
